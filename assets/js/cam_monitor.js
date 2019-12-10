@@ -1,0 +1,247 @@
+var currentSrcIndex = 0;
+var iterateSeconds = 4;
+var defaultDelay = 0;
+var weatherCity = "Highland";
+var weatherState = "UT";
+var weatherCountry = "US";
+var weatherData = null;
+var clockFormat = "12";
+var camTO = null;
+var weatherTO = null;
+var clockTO = null;
+var imageList = [];
+var dateString = "";
+var dateToggleTO = null;
+var dateToggleBool = true;
+
+function sourceCameras() {
+	const cameraList = getCams();
+	const thumbnailElement = document.getElementById("thumbnails");
+	for (var x in cameraList) {
+		const cam = cameraList[x];
+		const index = x;
+		const camImage = document.createElement("img");
+		camImage.onerror = function() {
+			this.src = "assets/images/no_image.png";
+		};
+		camImage.onclick = function() {
+			clickThumbnail(this);
+		};
+		camImage.setAttribute("data-bannerpos", cam.bannerPos);
+		camImage.setAttribute("data-index", index);
+		thumbnailElement.appendChild(camImage);
+	}
+	const settings = getStorage("settings");
+	if (settings["weather-city"]) {
+		weatherCity = settings["weather-city"];
+	}
+	if (settings["weather-state"]) {
+		weatherState = settings["weather-state"];
+	}
+	if (settings["weather-country"]) {
+		weatherCountry = settings["weather-country"];
+	}
+	if (settings["camera-refresh"]) {
+		iterateSeconds = settings["camera-refresh"];
+	}
+	if (settings["clock-format"]) {
+		clockFormat = settings["clock-format"];
+	}
+
+	getWeather();
+	updateCamSrc();
+	updateClock();
+	toggleDateWeather();
+	camTO = setInterval(updateCamSrc, iterateSeconds * 1000);
+	weatherTO = setInterval(getWeather, 60 * 1000 * 10);
+	clockTO = setInterval(updateClock, 60 * 1000);
+	dateToggleTO = setInterval(toggleDateWeather, 5 * 1000);
+
+	document.getElementById("image-element").ontouchmove = function(event) {
+		event.preventDefault();
+	};
+}
+
+function updateClock() {
+	var now = new Date();
+	var hour = now.getHours();
+	if (hour > 12) {
+		hour = clockFormat === "12" ? hour - 12 : hour;
+	}
+	if (hour === 0) {
+		hour = clockFormat === "12" ? 12 : "00";
+	}
+	var minute = now.getMinutes();
+	if (minute < 10) {
+		minute = "0" + minute;
+	}
+	if (dateString === "" || (hour === 0 && minute === 0)) {
+		dateString = formatDate(now);
+		document.getElementById("date").innerHTML = dateString;
+	}
+	document.getElementById("time").innerHTML = hour + ":" + minute;
+}
+
+function formatDate(dateObj) {
+	const months = [
+		"Jan",
+		"Feb",
+		"Mar",
+		"Apr",
+		"May",
+		"Jun",
+		"Jul",
+		"Aug",
+		"Sep",
+		"Oct",
+		"Nov",
+		"Dec"
+	];
+	const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+	return (
+		days[dateObj.getDay()] +
+		" " +
+		months[dateObj.getMonth()] +
+		" " +
+		dateObj.getDate()
+	);
+}
+
+function getWeather() {
+	var request = new XMLHttpRequest();
+	request.open(
+		"GET",
+		"http://cam.iamboo.com/weather.php?city=" +
+			weatherCity +
+			"&region=" +
+			weatherState +
+			"&country_code=" +
+			weatherCountry,
+		true
+	);
+	request.onload = function() {
+		if (this.response) {
+			storage.setItem("weatherData", this.response);
+		}
+		updateWeather();
+	};
+	request.send();
+}
+
+function updateWeather() {
+	const hasWeatherData = weatherData !== null;
+	var storedWeatherData = storage.getItem("weatherData");
+	weatherData = storedWeatherData ? JSON.parse(storedWeatherData) : {};
+	var condition = weatherData ? weatherData.current_observation.condition : {};
+	var today = weatherData.forecasts[0];
+	document.getElementById("temp").innerHTML =
+		condition.temperature + "<i>&deg;</i>";
+	document.getElementById("hi").innerHTML = today.high;
+	document.getElementById("lo").innerHTML = today.low;
+	const conditionElement = document.getElementById("condition");
+	conditionElement.setAttribute("class", "condition-" + condition.code);
+	conditionElement.innerHTML = condition.text;
+	if (!hasWeatherData) {
+		toggleDateWeather();
+	}
+}
+
+function toggleDateWeather() {
+	dateToggleBool = !dateToggleBool;
+	document
+		.getElementById("condition-date-toggle")
+		.setAttribute("class", dateToggleBool ? "" : "show-date");
+}
+
+function updateCamSrc() {
+	const cameraList = getCams();
+	if (defaultDelay > 0) {
+		defaultDelay = defaultDelay - 1000 * iterateSeconds;
+	} else {
+		currentSrcIndex = 0;
+	}
+	if (imageList.length === 0) {
+		const thumbnailElement = document.getElementById("thumbnails");
+		imageList = thumbnailElement.getElementsByTagName("img");
+	}
+	for (var i = 0; i < imageList.length; i++) {
+		const thumbnailElement = imageList[i];
+		thumbnailElement.src = getCameraModelSrc(cameraList[i]);
+		if (currentSrcIndex === i) {
+			setZoomImg(thumbnailElement);
+		}
+	}
+}
+
+function getCameraModelSrc(cam) {
+	const key = cam.model;
+	const ts = new Date().getTime();
+	const timestamp = "xwing" + ts + "fighter";
+
+	var returnString = "";
+	switch (key) {
+		case "Wyze":
+			returnString +=
+				"http://" +
+				cam.username +
+				":" +
+				cam.password +
+				"@" +
+				cam.ip +
+				"/image.jpg?ts=" +
+				timestamp;
+			break;
+		case "Ring":
+			returnString +=
+				"http://" +
+				cam.username +
+				":" +
+				cam.password +
+				"@" +
+				cam.ip +
+				"/image.cgi?type=motion&camera=0&ts=" +
+				timestamp;
+
+			break;
+		default:
+			returnString +=
+				"http://" +
+				cam.ip +
+				"/cgi-bin/api.cgi?cmd=Snap&channel=0&rs=" +
+				timestamp +
+				"&user=" +
+				cam.username +
+				"&password=" +
+				cam.password;
+			break;
+	}
+	return returnString;
+}
+
+function setZoomImg(thumbnailElement) {
+	const bannerPos = thumbnailElement.getAttribute("data-bannerpos");
+	const currentActive = document.getElementsByClassName("active")[0];
+	if (currentActive && thumbnailElement !== currentActive) {
+		currentActive.setAttribute("class", "");
+	}
+	thumbnailElement.setAttribute("class", "active");
+	const zoomImgElement = document.getElementById("image-element");
+	zoomImgElement.src = thumbnailElement.getAttribute("src");
+	const timeContainerElement = document.getElementById("time-container");
+	timeContainerElement.setAttribute("class", bannerPos);
+}
+
+function clickThumbnail(imgElement) {
+	const index = parseInt(imgElement.getAttribute("data-index"));
+	const thumbnailElement = document.getElementById("thumbnails");
+	imageList = thumbnailElement.getElementsByTagName("img");
+	setZoomImg(imageList[index]);
+	currentSrcIndex = parseInt(index);
+	defaultDelay = 30 * 1000;
+}
+
+function goToSetup() {
+	const currentLocation = document.location.href;
+	const setupLocation = currentLocation.replace("monitor.html", "");
+	document.location.href = setupLocation;
+}

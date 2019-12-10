@@ -1,0 +1,144 @@
+@import "./bootstrap.min.css";
+@import "./../fontawesome/css/all.css";
+html {
+	overflow: hidden;
+	body {
+		font-family: "Open Sans", sans-serif;
+		font-size: 18px;
+		padding-top: 2rem;
+		overflow: hidden;
+	}
+}
+h2 {
+	float: left;
+	padding-bottom: 1rem;
+}
+.row {
+	padding: 1rem 0.25rem;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+	position: relative;
+	margin: 0px 0px 1rem 0px;
+	&.header {
+		border-bottom: 2px solid rgba(0, 0, 0, 0.3);
+		font-size: 0.8rem;
+		text-transform: uppercase;
+		padding-bottom: 0.25rem;
+		padding-top: 1.5rem;
+	}
+	.col {
+		background: transparent;
+	}
+}
+.custom-switch {
+	padding-top: 6px;
+	padding-bottom: 5px;
+}
+.btn.float-right {
+	margin-left: 0.5rem;
+}
+.modal.show {
+	display: block;
+	background: rgba(0, 0, 0, 0.3);
+}
+.modal-header button {
+	font-size: 1.5rem;
+	position: absolute;
+	width: 4rem;
+	height: 3.75rem;
+	right: 0;
+	top: 0;
+	margin: 0;
+	color: rgba(0, 0, 0, 0.2);
+	background: transparent;
+	border: none;
+	text-align: center;
+	line-height: 3.75rem;
+}
+.table {
+	margin-top: 1rem;
+	thead {
+		th {
+			border-top: none;
+			text-align: left;
+		}
+	}
+	td {
+		&.td-icon {
+			text-align: right;
+			padding: 0;
+			.fa-trash {
+				text-align: center;
+				font-size: 1.5rem;
+				width: 4rem;
+				line-height: 2.8rem;
+				color: #dc3545;
+				background: none;
+				border: none;
+				display: inline-block;
+			}
+		}
+	}
+}
+
+#tabList {
+	clear: both;
+	display: block;
+	flex-wrap: unset;
+	height: 45px;
+}
+.nav-tabs {
+	.nav-item {
+		float: left;
+	}
+}
+#cameras-tab-content {
+	.btn {
+		margin-top: -55px;
+	}
+}
+#banner-options {
+	div {
+		display: inline-block;
+		background: rgba(0, 0, 0, 0.2);
+		height: 2rem;
+		width: 3rem;
+		border-radius: 5px;
+		position: relative;
+		&:before {
+			content: " ";
+			background: rgba(0, 0, 0, 0.1);
+			height: 0.75rem;
+			width: 1.5rem;
+			display: block;
+			border-radius: 3px;
+			position: absolute;
+		}
+		&.top-left {
+			&:before {
+				left: 0;
+				top: 0.2rem;
+			}
+		}
+		&.top-right {
+			&:before {
+				right: 0;
+				top: 0.2rem;
+			}
+		}
+		&.bottom-left {
+			&:before {
+				left: 0;
+				bottom: 0.2rem;
+			}
+		}
+		&.bottom-right {
+			&:before {
+				right: 0;
+				bottom: 0.2rem;
+			}
+		}
+		&.active-banner {
+			background: rgba(0, 125, 255, 0.4);
+		}
+	}
+}

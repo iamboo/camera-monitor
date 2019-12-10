@@ -1,0 +1,268 @@
+<html>
+	<head>
+		<title>CamMonitor Settings</title>
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1, user-scalable=no, maximum-scale=1"
+		/>
+		<script src="assets/js/polyfills.js"></script>
+		<script src="assets/js/cam.js"></script>
+		<script src="assets/js/cam_setup.js"></script>
+		<script src="assets/js/es5-shim.min.js"></script>
+		<script src="assets/js/es5-sham.min.js"></script>
+		<script src="assets/js/json3.min.js"></script>
+		<script src="assets/js/es6-shim.min.js"></script>
+		<script src="assets/js/es6-sham.min.js"></script>
+		<link href="favicon.ico" rel="icon" type="image/x-icon" />
+		<link
+			href="//fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800&display=swap"
+			rel="stylesheet"
+		/>
+		<link
+			rel="stylesheet/less"
+			type="text/css"
+			href="assets/css/cam_setup.less"
+		/>
+		<script src="assets/js/less.min.js"></script>
+	</head>
+	<body>
+		<div class="container">
+			<h2>Camera Monitor & Dashboard</h2>
+			<button
+				type="button"
+				class="btn btn-primary float-right"
+				onClick="launchMonitor()"
+			>
+				Launch Monitor
+			</button>
+
+			<ul class="nav nav-tabs" id="tabList">
+				<li class="nav-item">
+					<a
+						class="nav-link active"
+						id="cameras-tab"
+						href="#"
+						onClick="tabClick(event)"
+						>Cameras</a
+					>
+				</li>
+				<li class="nav-item">
+					<a
+						class="nav-link"
+						id="settings-tab"
+						href="#"
+						onClick="tabClick(event)"
+						>Settings</a
+					>
+				</li>
+			</ul>
+			<div class="tab-content">
+				<div class="tab-pane active" id="cameras-tab-content">
+					<button
+						type="button"
+						class="btn btn-outline-primary btn-sm float-right"
+						onClick="editCamera(-1)"
+					>
+						<span class="fa fa-plus"></span>
+						Add Camera
+					</button>
+					<table class="table">
+						<thead>
+							<tr>
+								<th>IP/URL</th>
+								<th>Username</th>
+								<th>Password</th>
+								<th>Model</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody id="table-body"></tbody>
+					</table>
+				</div>
+				<div class="tab-pane" id="settings-tab-content">
+					<form onsubmit="saveSettings(event)" id="settings-form">
+						<div class="row">
+							<div class="col">
+								<div class="form-group">
+									<label for="weather-location">Weather City</label>
+									<input
+										type="text"
+										class="form-control"
+										id="weather-city"
+										placeholder="Example: Highland"
+									/>
+								</div>
+								<div class="form-group">
+									<label for="weather-state"
+										>Weather State (province, etc)</label
+									>
+									<input
+										type="text"
+										class="form-control"
+										id="weather-state"
+										placeholder="Example: UT or Utah"
+									/>
+								</div>
+								<div class="form-group">
+									<label for="weather-country"
+										>Weather Country (2 digit country code)</label
+									>
+									<input
+										type="text"
+										class="form-control"
+										id="weather-country"
+										maxlength="2"
+										placeholder="Example: US"
+									/>
+								</div>
+							</div>
+							<div class="col">
+								<div class="form-group">
+									<label for="camera-refresh">Camera Refresh (seconds)</label>
+									<select id="camera-refresh" class="form-control">
+										<option value="2">2</option>
+										<option value="3">3</option>
+										<option value="4">4</option>
+										<option value="5">5</option>
+										<option value="6">6</option>
+										<option value="7">7</option>
+										<option value="8">8</option>
+										<option value="9">9</option>
+										<option value="10">10</option>
+									</select>
+								</div>
+								<div class="form-group">
+									<label>Clock Format</label>
+									<div class="custom-control custom-switch">
+										<input
+											type="checkbox"
+											class="custom-control-input"
+											id="clock-format"
+										/>
+										<label class="custom-control-label" for="clock-format"
+											>24 Hour</label
+										>
+									</div>
+								</div>
+							</div>
+						</div>
+						<button type="submit" class="btn btn-primary float-right">
+							Submit
+						</button>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal" tabindex="-1" role="dialog" id="camera-modal">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Modify Camera</h5>
+						<button
+							type="button"
+							class="fa fa-times"
+							onClick="clearModal()"
+						></button>
+					</div>
+					<div class="modal-body">
+						<form autocomplete="off">
+							<input id="camIndex" type="hidden" />
+							<div class="form-group">
+								<label>IP Address or URL</label>
+								<input
+									type="text"
+									class="form-control"
+									autocomplete="new-password"
+									id="ip"
+								/>
+							</div>
+							<div class="form-group">
+								<label>Username</label>
+								<input
+									type="text"
+									id="username"
+									class="form-control"
+									autocomplete="new-password"
+								/>
+							</div>
+							<div class="form-group">
+								<label>Password</label>
+								<input
+									type="text"
+									id="password"
+									class="form-control"
+									autocomplete="new-password"
+								/>
+							</div>
+							<div class="form-group">
+								<label>Model</label>
+								<select id="model" class="form-control">
+									<option value="Reolink">Reolink</option>
+									<option value="Ring">Ring</option>
+									<option value="Wyze">Wyze</option>
+								</select>
+							</div>
+							<div class="form-group">
+								<label>Time and Weather Banner Position</label>
+								<div id="banner-options">
+									<div class="top-left" onclick="bannerClick(event)"></div>
+									<div class="top-right" onclick="bannerClick(event)"></div>
+									<div class="bottom-left" onclick="bannerClick(event)"></div>
+									<div class="bottom-right" onclick="bannerClick(event)"></div>
+								</div>
+							</div>
+						</form>
+					</div>
+					<div class="modal-footer">
+						<button
+							type="button"
+							class="btn btn-secondary"
+							onClick="clearModal()"
+						>
+							Close
+						</button>
+						<button
+							type="button"
+							class="btn btn-primary"
+							onClick="saveCamera()"
+						>
+							Save Camera
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="modal" tabindex="-1" role="dialog" id="confirm-modal">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Confirm Delete</h5>
+						<button
+							type="button"
+							class="fa fa-times"
+							onClick="toggleModal('confirm-modal')"
+						></button>
+					</div>
+					<div class="modal-body" id="delete-message"></div>
+					<div class="modal-footer">
+						<button
+							type="button"
+							class="btn btn-secondary"
+							onClick="toggleModal('confirm-modal')"
+						>
+							Cancel
+						</button>
+						<button
+							type="button"
+							class="btn btn-danger"
+							onClick="deleteCamera()"
+						>
+							Delete Camera
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

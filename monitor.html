@@ -1,0 +1,74 @@
+<html>
+	<head>
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1, user-scalable=no, maximum-scale=1"
+		/>
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="apple-mobile-web-app-title" content="Monitor" />
+		<title>Monitor</title>
+		<script src="assets/js/es5-shim.min.js"></script>
+		<script src="assets/js/es5-sham.min.js"></script>
+		<script src="assets/js/json3.min.js"></script>
+		<script src="assets/js/es6-shim.min.js"></script>
+		<script src="assets/js/es6-sham.min.js"></script>
+		<script src="assets/js/cam.js"></script>
+		<script src="assets/js/cam_monitor.js"></script>
+		<link href="favicon.ico" rel="icon" type="image/x-icon" />
+		<link rel="apple-touch-icon" href="assets/images/cam_icon.png" />
+		<link
+			rel="apple-touch-icon"
+			sizes="76x76"
+			href="assets/images/cam_icon_76.png"
+		/>
+		<link
+			rel="apple-touch-icon"
+			sizes="120x120"
+			href="assets/images/cam_icon_120.png"
+		/>
+		<link
+			rel="apple-touch-icon"
+			sizes="152x152"
+			href="assets/images/cam_icon_152.png"
+		/>
+
+		<link
+			href="//fonts.googleapis.com/css?family=Cuprum&display=swap"
+			rel="stylesheet"
+		/>
+		<link
+			rel="stylesheet/less"
+			type="text/css"
+			href="assets/css/cam_monitor.less"
+		/>
+		<script src="assets/js/less.min.js"></script>
+	</head>
+	<body>
+		<button class="fa fa-cog" onClick="goToSetup()"></button>
+		<div id="time-container">
+			<span id="time"></span>
+			<span id="weather">
+				<span id="temp-row">
+					<span id="temp"></span>
+					<span id="hi-lo">
+						<div>
+							<span id="hi"></span>
+							<span class="fa fa-arrow-up"></span>
+						</div>
+						<div>
+							<span id="lo"></span>
+							<span class="fa fa-arrow-down"></span>
+						</div>
+					</span>
+				</span>
+				<div id="condition-date-toggle">
+					<span id="condition"></span>
+					<span id="date"></span>
+				</div>
+			</span>
+		</div>
+		<img id="image-element" onerror="this.src='assets/images/no_image.png'" />
+		<div id="thumbnails"></div>
+	</body>
+</html>

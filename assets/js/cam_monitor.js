@@ -7,8 +7,8 @@ var weatherCountry = "US";
 var weatherData = null;
 var clockFormat = "12";
 var camTO = null;
-var weatherTO = null;
-var clockTO = null;
+var weatherCounter = 0;
+var clockCounter = 0;
 var imageList = [];
 var dateString = "";
 var dateToggleTO = null;
@@ -32,30 +32,26 @@ function sourceCameras() {
 		thumbnailElement.appendChild(camImage);
 	}
 	const settings = getStorage("settings");
-	if (settings["weather-city"]) {
+	if (settings && settings["weather-city"]) {
 		weatherCity = settings["weather-city"];
 	}
-	if (settings["weather-state"]) {
+	if (settings && settings["weather-state"]) {
 		weatherState = settings["weather-state"];
 	}
-	if (settings["weather-country"]) {
+	if (settings && settings["weather-country"]) {
 		weatherCountry = settings["weather-country"];
 	}
-	if (settings["camera-refresh"]) {
+	if (settings && settings["camera-refresh"]) {
 		iterateSeconds = settings["camera-refresh"];
 	}
-	if (settings["clock-format"]) {
+	if (settings && settings["clock-format"]) {
 		clockFormat = settings["clock-format"];
 	}
 
 	getWeather();
-	updateCamSrc();
 	updateClock();
-	toggleDateWeather();
+	updateCamSrc();
 	camTO = setInterval(updateCamSrc, iterateSeconds * 1000);
-	weatherTO = setInterval(getWeather, 60 * 1000 * 10);
-	clockTO = setInterval(updateClock, 60 * 1000);
-	dateToggleTO = setInterval(toggleDateWeather, 5 * 1000);
 
 	document.getElementById("image-element").ontouchmove = function(event) {
 		event.preventDefault();
@@ -65,13 +61,18 @@ function sourceCameras() {
 function updateClock() {
 	var now = new Date();
 	var hour = now.getHours();
+	var minute = now.getMinutes();
+	if ((hour === 11 || hour === 23) && minute === 59) {
+		setTimeout(function() {
+			document.location.href = document.location.href;
+		}, 1000 * 61);
+	}
 	if (hour > 12) {
 		hour = clockFormat === "12" ? hour - 12 : hour;
 	}
 	if (hour === 0) {
 		hour = clockFormat === "12" ? 12 : "00";
 	}
-	var minute = now.getMinutes();
 	if (minute < 10) {
 		minute = "0" + minute;
 	}
@@ -147,13 +148,27 @@ function updateWeather() {
 }
 
 function toggleDateWeather() {
+	if (dateToggleTO) {
+		clearTimeout(dateToggleTO);
+	}
 	dateToggleBool = !dateToggleBool;
 	document
 		.getElementById("condition-date-toggle")
 		.setAttribute("class", dateToggleBool ? "" : "show-date");
+	dateToggleTO = setTimeout(toggleDateWeather, 5000);
 }
 
 function updateCamSrc() {
+	clockCounter = clockCounter + iterateSeconds;
+	if (clockCounter === 60) {
+		updateClock();
+		clockCounter = 0;
+	}
+	weatherCounter = weatherCounter + iterateSeconds;
+	if (weatherCounter === 600) {
+		weatherCounter = 0;
+		getWeather();
+	}
 	const cameraList = getCams();
 	if (defaultDelay > 0) {
 		defaultDelay = defaultDelay - 1000 * iterateSeconds;

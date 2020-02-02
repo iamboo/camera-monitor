@@ -100,6 +100,10 @@ function editCamera(e) {
 	if (bannerElement[0]) {
 		bannerElement[0].classList.add("active-banner");
 	}
+	document.getElementById("btn-duplicate").classList.remove("hide");
+	if (camIndex === -1) {
+		document.getElementById("btn-duplicate").classList.add("hide");
+	}
 	toggleModal("camera-modal");
 }
 
@@ -114,6 +118,14 @@ function toggleModal(modalId) {
 	}
 	classAttr = classAttr.trim();
 	modalElement.setAttribute("class", classAttr);
+}
+
+var keepModal = false;
+function duplicateCamera() {
+	var cameraList = getCams();
+	document.getElementById("camIndex").value = cameraList.length;
+	keepModal = true;
+	saveCamera();
 }
 
 function saveCamera() {
@@ -152,7 +164,11 @@ function saveCamera() {
 	}
 	setCams(cameraList);
 	sourceCameras();
-	clearModal();
+	if (keepModal) {
+		keepModal = false;
+	} else {
+		clearModal();
+	}
 }
 
 function clearModal() {
@@ -185,6 +201,8 @@ function deleteCamera() {
 	const cameraList = getCams();
 	cameraList.splice(deleteCamIndex, 1);
 	setCams(cameraList);
+	sourceCameras();
+	toggleModal("confirm-modal");
 }
 
 function launchMonitor() {

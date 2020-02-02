@@ -15,9 +15,10 @@ h2 {
 }
 .row {
 	padding: 1rem 0.25rem;
-	border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+	border-bottom: none;
 	position: relative;
 	margin: 0px 0px 1rem 0px;
+	clear: both;
 	&.header {
 		border-bottom: 2px solid rgba(0, 0, 0, 0.3);
 		font-size: 0.8rem;
@@ -25,9 +26,16 @@ h2 {
 		padding-bottom: 0.25rem;
 		padding-top: 1.5rem;
 	}
-	.col {
+	.col-4,
+	.col-6 {
 		background: transparent;
+		float: left;
 	}
+}
+.footer {
+	border-top: 1px solid rgba(0, 0, 0, 0.2);
+	clear: both;
+	padding: 1rem 0;
 }
 .custom-switch {
 	padding-top: 6px;
@@ -53,6 +61,14 @@ h2 {
 	border: none;
 	text-align: center;
 	line-height: 3.75rem;
+}
+.modal-footer {
+	clear: both;
+	#btn-duplicate {
+		&.hide {
+			display: none;
+		}
+	}
 }
 .table {
 	margin-top: 1rem;
@@ -100,8 +116,8 @@ h2 {
 	div {
 		display: inline-block;
 		background: rgba(0, 0, 0, 0.2);
-		height: 2rem;
-		width: 3rem;
+		height: 2.375rem;
+		width: 3.2rem;
 		border-radius: 5px;
 		position: relative;
 		&:before {
@@ -140,5 +156,10 @@ h2 {
 		&.active-banner {
 			background: rgba(0, 125, 255, 0.4);
 		}
+	}
+}
+#camera-modal {
+	.modal-dialog {
+		max-width: 90%;
 	}
 }

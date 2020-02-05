@@ -13,6 +13,7 @@ var imageList = [];
 var dateString = "";
 var dateToggleTO = null;
 var dateToggleBool = true;
+var lastClockUpdate = null;
 
 function sourceCameras() {
 	const cameraList = getCams();
@@ -60,6 +61,7 @@ function sourceCameras() {
 
 function updateClock() {
 	var now = new Date();
+	lastClockUpdate = now;
 	var hour = now.getHours();
 	var minute = now.getMinutes();
 	if ((hour === 11 || hour === 23) && minute === 59) {
@@ -159,6 +161,12 @@ function toggleDateWeather() {
 }
 
 function updateCamSrc() {
+	const now = new Date();
+	if(now.getDate() !== lastClockUpdate.getDate()){
+		dateString = "";
+		getWeather();
+		updateClock();
+	}
 	clockCounter = clockCounter + iterateSeconds;
 	if (clockCounter === 60) {
 		updateClock();

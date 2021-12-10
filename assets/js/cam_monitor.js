@@ -13,6 +13,7 @@ var imageList = [];
 var dateString = "";
 var dateToggleTO = null;
 var dateToggleBool = true;
+var lastClockUpdate = null;
 
 function sourceCameras() {
 	const cameraList = getCams();
@@ -60,6 +61,7 @@ function sourceCameras() {
 
 function updateClock() {
 	var now = new Date();
+	lastClockUpdate = now;
 	var hour = now.getHours();
 	var minute = now.getMinutes();
 	if ((hour === 11 || hour === 23) && minute === 59) {
@@ -112,17 +114,24 @@ function getWeather() {
 	var request = new XMLHttpRequest();
 	request.open(
 		"GET",
-		"http://cam.iamboo.com/weather.php?city=" +
-			weatherCity +
-			"&region=" +
-			weatherState +
-			"&country_code=" +
-			weatherCountry,
-		true
-	);
+		'http://api.openweathermap.org/data/2.5/weather?q='+weatherCity+','+weatherState+','+weatherCountry+'&appid=5c730330ff31b280e3ac55b845461d48&units=imperial');
 	request.onload = function() {
 		if (this.response) {
-			storage.setItem("weatherData", this.response);
+			var data = JSON.parse(this.response);
+			console.log(data);
+			var currentWeather = data.weather[0];
+			var weather = {
+				today: {
+					high: Math.round(data.main.temp_max),
+					low: Math.round(data.main.temp_min),
+				},
+				condition: {
+					temperature: Math.round(data.main.temp),
+					code: currentWeather.id,
+					text: currentWeather.description
+				}
+			};
+			storage.setItem("weatherData", JSON.stringify(weather));
 		}
 		updateWeather();
 	};
@@ -133,15 +142,15 @@ function updateWeather() {
 	const hasWeatherData = weatherData !== null;
 	var storedWeatherData = storage.getItem("weatherData");
 	weatherData = storedWeatherData ? JSON.parse(storedWeatherData) : {};
-	var condition = weatherData ? weatherData.current_observation.condition : {};
-	var today = weatherData.forecasts[0];
+	var condition = weatherData ? weatherData.condition : {};
+	var today = weatherData.today;
 	document.getElementById("temp").innerHTML =
 		condition.temperature + "<i>&deg;</i>";
 	document.getElementById("hi").innerHTML = today.high;
 	document.getElementById("lo").innerHTML = today.low;
 	const conditionElement = document.getElementById("condition");
-	conditionElement.setAttribute("class", "condition-" + condition.code);
 	conditionElement.innerHTML = condition.text;
+	conditionElement.className = "condition-" + condition.code;
 	if (!hasWeatherData) {
 		toggleDateWeather();
 	}
@@ -159,6 +168,12 @@ function toggleDateWeather() {
 }
 
 function updateCamSrc() {
+	const now = new Date();
+	if(now.getDate() !== lastClockUpdate.getDate()){
+		dateString = "";
+		getWeather();
+		updateClock();
+	}
 	clockCounter = clockCounter + iterateSeconds;
 	if (clockCounter === 60) {
 		updateClock();
